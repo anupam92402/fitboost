@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:fitboost/utils/const.dart';
 import 'package:flutter/material.dart';
 import 'package:health/health.dart';
 
@@ -9,153 +12,141 @@ class StepsScreen extends StatefulWidget {
 }
 
 class _StepsScreenState extends State<StepsScreen> {
-  String? heartRate;
-  String? bp;
-  String? steps;
-  String? activeEnergy;
-
-  String? bloodPreSys;
-  String? bloodPreDia;
-
-  List<HealthDataPoint> healthData = [];
-
-  HealthFactory health = HealthFactory();
-
+  int getSteps = 0;
+  double caloriesBurnedWalk = 0;
+  double caloriesBurnedBrisk = 0;
+  double caloriesBurnedRun = 0;
   @override
   void initState() {
     super.initState();
     fetchData();
   }
 
-  /// Fetch data points from the health plugin and show them in the app.
+  HealthFactory health = HealthFactory();
+
   Future fetchData() async {
-    // define the types to get
-    final types = [
-      HealthDataType.HEART_RATE,
-      HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
-      HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
-      HealthDataType.STEPS,
-      HealthDataType.ACTIVE_ENERGY_BURNED,
-    ];
+    int? steps;
 
-    // get data within the last 24 hours
+    var types = [HealthDataType.STEPS];
+
     final now = DateTime.now();
-    final yesterday = now.subtract(const Duration(days: 1));
+    final midNight = DateTime(now.year, now.month, now.day);
 
-    // requesting access to the data types before reading them
-    bool requested = await health.requestAuthorization(types);
+    var permissions = [HealthDataAccess.READ];
+
+    bool requested =
+        await health.requestAuthorization(types, permissions: permissions);
 
     if (requested) {
       try {
-        // fetch health data
-        healthData = await health.getHealthDataFromTypes(yesterday, now, types);
-
-        if (healthData.isNotEmpty) {
-          for (HealthDataPoint h in healthData) {
-            if (h.type == HealthDataType.HEART_RATE) {
-              heartRate = "${h.value}";
-            } else if (h.type == HealthDataType.BLOOD_PRESSURE_SYSTOLIC) {
-              bloodPreSys = "${h.value}";
-            } else if (h.type == HealthDataType.BLOOD_PRESSURE_DIASTOLIC) {
-              bloodPreDia = "${h.value}";
-            } else if (h.type == HealthDataType.STEPS) {
-              steps = "${h.value}";
-            } else if (h.type == HealthDataType.ACTIVE_ENERGY_BURNED) {
-              activeEnergy = "${h.value}";
-            }
-          }
-          if (bloodPreSys != "null" && bloodPreDia != "null") {
-            bp = "$bloodPreSys / $bloodPreDia mmHg";
-          }
-
-          setState(() {});
-        }
+        steps = await health.getTotalStepsInInterval(midNight, now);
       } catch (error) {
-        print("Exception in getHealthDataFromTypes: $error");
+        log(error.toString());
       }
+      log('steps:- $steps');
 
-      // filter out duplicates
-      healthData = HealthFactory.removeDuplicates(healthData);
+      setState(() {
+        getSteps = steps ?? 0;
+        caloriesBurnedWalk = getMetValue(
+            height: 182,
+            weight: 80,
+            steps: getSteps,
+            mode: ActivityMode.walking);
+        caloriesBurnedBrisk = getMetValue(
+            height: 182, weight: 80, steps: getSteps, mode: ActivityMode.brisk);
+        caloriesBurnedRun = getMetValue(
+            height: 182,
+            weight: 80,
+            steps: getSteps,
+            mode: ActivityMode.running);
+      });
     } else {
-      print("Authorization not granted");
+      log('authorization error');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("My Health Data"),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
+      body: RefreshIndicator(
+        onRefresh: () {
+          return Future.delayed(const Duration(seconds: 1), () {
+            fetchData();
+          });
+        },
+        child: ListView(
           children: [
-            Row(
-              children: [
-                Expanded(
-                    child: healthCard(
-                        title: "Heart rate",
-                        image: "assets/health.png",
-                        data: heartRate != "null" ? "$heartRate bpm" : "",
-                        color: const Color(0xFF8d7ffa))),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                    child: healthCard(
-                        title: "Blood pressure",
-                        data: bp ?? "",
-                        image: "assets/blood-pressure.png",
-                        color: const Color(0xFF4fd164))),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                    child: healthCard(
-                        title: "Step count",
-                        image: "assets/step.png",
-                        data: steps ?? "",
-                        color: const Color(0xFF2086fd))),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                    child: healthCard(
-                        title: "Energy burned",
-                        image: "assets/calories.png",
-                        data: activeEnergy != "null" ? "$activeEnergy cal" : "",
-                        color: const Color(0xFFf77e7e))),
-              ],
+            Center(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 18),
+                    child: Text(
+                      'Steps:- $getSteps',
+                      style: const TextStyle(fontSize: 32),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      healthCard(
+                          title: 'Walk',
+                          data: caloriesBurnedWalk.toStringAsFixed(2),
+                          color: Colors.purple,
+                          image: 'assets/images/health.png'),
+                      healthCard(
+                          title: 'Brisk Walk',
+                          data: caloriesBurnedBrisk.toStringAsFixed(2),
+                          color: Colors.green,
+                          image: 'assets/images/step.png'),
+                    ],
+                  ),
+                  healthCard(
+                      title: 'Run',
+                      data: caloriesBurnedRun.toStringAsFixed(2),
+                      color: Colors.blue,
+                      image: 'assets/images/calories.png'),
+                ],
+              ),
             )
           ],
         ),
       ),
     );
   }
-}
 
-Widget healthCard(
-    {String title = "",
-    String data = "",
-    Color color = Colors.blue,
-    required String image}) {
-  return Container(
-    height: 240,
-    margin: const EdgeInsets.symmetric(vertical: 10),
-    padding: const EdgeInsets.symmetric(vertical: 10),
-    decoration: BoxDecoration(
-        color: color,
-        borderRadius: const BorderRadius.all(Radius.circular(20))),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Text(title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        Image.asset(image, width: 70),
-        Text(data),
-      ],
-    ),
-  );
+  Widget healthCard(
+      {String title = "",
+      String data = "",
+      Color color = Colors.blue,
+      required String image}) {
+    return Container(
+      width: 150,
+      height: 150,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+          color: color,
+          borderRadius: const BorderRadius.all(Radius.circular(20))),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+          ),
+          Image.asset(image, width: 70),
+          Text('$data kcal',
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: Colors.white)),
+        ],
+      ),
+    );
+  }
 }

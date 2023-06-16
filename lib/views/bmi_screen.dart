@@ -1,4 +1,3 @@
-import 'package:fitboost/models/food/meal.dart';
 import 'package:fitboost/view_models/bmi_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +12,17 @@ class BmiScreen extends StatefulWidget {
 }
 
 class _BmiScreenState extends State<BmiScreen> {
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  Future<void> initialize() async {
+    BmiViewModel provider = context.read<BmiViewModel>();
+    await provider.getAlreadyExistingValue();
+  }
+
   @override
   Widget build(BuildContext context) {
     var availableWidth = (MediaQuery.of(context).size.width - 40) / 3;
@@ -46,7 +56,7 @@ class _BmiScreenState extends State<BmiScreen> {
                       fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '80 kg',
+                  '${provider.weight} kg',
                   style: TextStyle(
                       fontSize: 22,
                       color: Colors.grey.shade800,
@@ -68,7 +78,7 @@ class _BmiScreenState extends State<BmiScreen> {
                       fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '180 cm',
+                  '${provider.height} cm',
                   style: TextStyle(
                       fontSize: 22,
                       color: Colors.grey.shade800,
@@ -91,16 +101,19 @@ class _BmiScreenState extends State<BmiScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        '24.7',
-                        style: TextStyle(
+                      Text(
+                        provider.bmi.toStringAsFixed(2),
+                        style: const TextStyle(
                             fontSize: 48,
                             color: Colors.deepOrangeAccent,
                             fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(
+                        width: 12,
+                      ),
                       Column(
-                        children: const [
-                          Text(
+                        children: [
+                          const Text(
                             'BMI',
                             style: TextStyle(
                                 fontSize: 28,
@@ -108,8 +121,9 @@ class _BmiScreenState extends State<BmiScreen> {
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            'Normal',
-                            style: TextStyle(fontSize: 18, color: Colors.green),
+                            provider.bmiStatus,
+                            style: TextStyle(
+                                fontSize: 18, color: provider.bmiStatusColor),
                           ),
                         ],
                       )
@@ -134,9 +148,9 @@ class _BmiScreenState extends State<BmiScreen> {
                   const SizedBox(
                     height: 22,
                   ),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: const [
+                    children: [
                       Text(
                         'Underweight',
                         style: TextStyle(color: Colors.blue),
@@ -178,9 +192,9 @@ class _BmiScreenState extends State<BmiScreen> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children: [
                       Text(
                         '16.0',
                         style: TextStyle(color: Colors.black, fontSize: 16),
@@ -263,8 +277,8 @@ class _BmiScreenState extends State<BmiScreen> {
                           trackHeight: 6,
                         ),
                         child: Slider(
-                          min: 0,
-                          max: 4500,
+                          min: 300,
+                          max: provider.calories,
                           value: provider.targetCalories,
                           onChanged: (value) {
                             provider.targetCalories = value;
@@ -280,7 +294,7 @@ class _BmiScreenState extends State<BmiScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => FoodScreen(),
+                              builder: (_) => const FoodScreen(),
                             ),
                           );
                         },

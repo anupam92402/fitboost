@@ -74,8 +74,8 @@ class _MyAppState extends State<MyApp> {
           primarySwatch: Colors.blue,
         ),
         // home: UserInfoScreen(),
-        // home: OnBoardingScreen(),
-        home: SplashScreen(),
+        home: OnBoardingScreen(),
+        // home: SplashScreen(),
       ),
     );
   }

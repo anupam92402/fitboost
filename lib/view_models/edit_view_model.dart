@@ -22,19 +22,15 @@ class EditViewModel extends ChangeNotifier {
         age = userMap['age'].toString();
         gender = userMap['gender'];
         if (userMap['image'] != null) {
-          image = userMap['image'];
+          imagePath = userMap['image'];
         }
       }
     }
     notifyListeners();
   }
 
-  String _name = '',
-      _weight = '',
-      _height = '',
-      _age = '',
-      _gender = '',
-      image = '';
+  String _name = '', _weight = '', _height = '', _age = '', _gender = '';
+  String imagePath = '';
 
   String get name => _name;
 
@@ -80,7 +76,7 @@ class EditViewModel extends ChangeNotifier {
     );
     if (pickedFile != null) {
       imageFile = File(pickedFile.path);
-      image = imageFile!.path;
+      imagePath = imageFile?.path.toString() ?? '';
       notifyListeners();
     }
   }
@@ -97,8 +93,9 @@ class EditViewModel extends ChangeNotifier {
         userMap['height'] = double.tryParse(height);
         userMap['age'] = double.tryParse(age);
         userMap['gender'] = gender;
-        if (imageFile != null) {
-          userMap['image'] = imageFile?.path;
+        if (imagePath.isNotEmpty) {
+          userMap['image'] = imagePath;
+          notifyListeners();
         }
         prefs.setString(email, jsonEncode(userMap));
         log('update user is: $userMap');

@@ -73,5 +73,49 @@ double calculateUserBMR(
   return bmr;
 }
 
+double getBmi({required double height, required double weight}) {
+  height /= 100;
+  return weight / (height * height);
+}
+
 // Men: BMR = 88.362 + (13.397 x weight in kg) + (4.799 x height in cm) – (5.677 x age in years)
 // Women: BMR = 447.593 + (9.247 x weight in kg) + (3.098 x height in cm) – (4.330 x age in years)
+
+enum ActivityMode { running, brisk, walking }
+
+double getMetValue(
+    {required double height,
+    required double weight,
+    required int steps,
+    required ActivityMode mode}) {
+  height /= 100;
+  List<double> speedList = [0.9, 1.34, 1.79];
+  List<double> metList = [2.8, 3.5, 5];
+  double stride = 0.414 * height;
+  double distance = stride * steps;
+  double met, speed, calories;
+  switch (mode) {
+    case ActivityMode.brisk:
+      {
+        speed = speedList[1];
+        met = metList[1];
+      }
+      break;
+    case ActivityMode.running:
+      {
+        speed = speedList[2];
+        met = metList[2];
+      }
+      break;
+    case ActivityMode.walking:
+    default:
+      {
+        speed = speedList[0];
+        met = metList[0];
+      }
+      break;
+  }
+  double time = distance / speed;
+  calories = (time * met * 3.5 * weight) / (200 * 60);
+  return calories;
+}

@@ -15,6 +15,14 @@ class NavigationDrawerClass extends StatefulWidget {
 class _NavigationDrawerClassState extends State<NavigationDrawerClass> {
   SharedPreferences prefs = SharedPrefs.instance;
   String userName = '', userEmail = '', imagePath = '';
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void getFile() async {}
+
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -23,11 +31,8 @@ class _NavigationDrawerClassState extends State<NavigationDrawerClass> {
         children: [
           myDrawerHeader(),
           menuItem(context, DrawerSection.home, Icons.home),
-          menuItem(
-              context,
-              DrawerSection.edit,
-              Icons
-                  .edit), // menuItem(context, DrawerSection.graph, Icons.bar_chart),
+          menuItem(context, DrawerSection.edit, Icons.edit),
+          // menuItem(context, DrawerSection.graph, Icons.bar_chart),
           menuItem(context, DrawerSection.bmi, Icons.fastfood_rounded),
           menuItem(context, DrawerSection.steps, Icons.directions_walk),
           menuItem(context, DrawerSection.logout, Icons.logout),
@@ -45,9 +50,15 @@ class _NavigationDrawerClassState extends State<NavigationDrawerClass> {
         // print('$userMap');
         userEmail = email;
         userName = userMap['name'];
-        if (userMap['image'] != null) {
-          imagePath = userMap['image'];
-        }
+        imagePath = userMap['image'];
+        // if (userMap['image'] != null) {
+        //   _getLocalFile(userMap['image']).then((value) => {
+        //         setState(() {
+        //           imagePath = value.path;
+        //         }),
+        //       });
+        //   // imagePath = response.path;
+        // }
       }
     }
     return DrawerHeader(

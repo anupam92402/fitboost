@@ -60,6 +60,8 @@ class _EditScreenState extends State<EditScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<EditViewModel>();
+    print('here');
+    print(provider.imagePath);
     return Container(
       margin: const EdgeInsets.all(18),
       padding: const EdgeInsets.all(8),
@@ -71,8 +73,8 @@ class _EditScreenState extends State<EditScreen> {
             },
             child: CircleAvatar(
               radius: 40,
-              backgroundImage: (provider.image != '')
-                  ? FileImage(File(provider.image))
+              backgroundImage: (provider.imagePath.isNotEmpty)
+                  ? FileImage(File(provider.imagePath))
                   : const AssetImage('assets/images/user_profile.png')
                       as ImageProvider,
             ),

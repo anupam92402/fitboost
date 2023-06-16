@@ -20,24 +20,27 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         controller: controller,
         children: [
           Pages(
-            title: 'Title 1',
-            description: 'lorem111111',
+            title: 'Caloric Intake Calculation',
+            description:
+                'Track how much calories you need to consume per day according to your height, weight and other parameters',
             btnText: 'Next',
             image: 'assets/images/fitness.png',
             pageController: controller,
             index: 0,
           ),
           Pages(
-            title: 'Title 2',
-            description: 'lorem222222',
+            title: 'Gets Food Suggestion',
+            description:
+                'You will get a list of food based on the calories you choose and the ingredients, recipe to make',
             btnText: 'Next',
             image: 'assets/images/fitness.png',
             pageController: controller,
             index: 1,
           ),
           Pages(
-            title: 'Title 3',
-            description: 'lorem3333333',
+            title: 'Track Calories Burned',
+            description:
+                'See how many calories you have burned by 3 different modes walking, brisk walk and running etc',
             btnText: 'Get\'s Started',
             image: 'assets/images/fitness.png',
             pageController: controller,
@@ -63,29 +66,29 @@ class Pages extends StatelessWidget {
       required this.index});
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Image.asset(image),
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(
-          height: 12,
-        ),
-        Text(
-          description,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w300),
-        ),
-        const SizedBox(
-          height: 56,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Image.asset(image),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(
+            height: 12,
+          ),
+          Text(
+            description,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w300),
+          ),
+          const SizedBox(
+            height: 56,
+          ),
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
@@ -134,8 +137,8 @@ class Pages extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
