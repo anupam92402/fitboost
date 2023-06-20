@@ -15,7 +15,7 @@ class BmiViewModel extends ChangeNotifier {
   Color bmiStatusColor = Colors.green;
   final _myRepo = CaloriesRepo();
   List<Meal> list = [];
-
+  bool isDataLoaded = false;
   double get targetCalories => _targetCalories;
 
   set targetCalories(double newCalories) {
@@ -32,6 +32,8 @@ class BmiViewModel extends ChangeNotifier {
     list = mealList;
     log('${BmiViewModel().runtimeType.toString()}:- Data is fetched successfully from fetchUserMeal');
     targetCalories = 50;
+    await Future.delayed(const Duration(seconds: 1));
+    isDataLoaded = true;
     notifyListeners();
   }
 
@@ -44,6 +46,7 @@ class BmiViewModel extends ChangeNotifier {
   // show user input values like weight, height on bmi screen
   // and change status of bmi value and status etc
   void getAlreadyExistingValue() {
+    isDataLoaded = false;
     Map<String, dynamic> userMap = getUserMap();
     weight = userMap['weight'].toString();
     height = userMap['height'].toString();

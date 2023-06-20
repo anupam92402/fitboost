@@ -9,7 +9,7 @@ import '../../utils/const.dart';
 
 class NetworkApiService {
   final String _usdaBaseUrl =
-      'https://api.nal.usda.gov/fdc/v1/foods/search?api_key=$USDA_API_KEY&query=';
+      'https://api.nal.usda.gov/fdc/v1/foods/search?api_key=$usdaApiKey&query=';
 
   final String _spoonacularBaseUrl = 'api.spoonacular.com';
 
@@ -68,7 +68,7 @@ class NetworkApiService {
     Map<String, String> parameters = {
       'number': '30',
       'maxCalories': maxCalories.toString(),
-      'apiKey': SPOONACULAR_API_KEY,
+      'apiKey': spoonacularApiKey,
     };
 
     //The Uri consists of the base url, the endpoint we are going to use. It has also
@@ -120,7 +120,7 @@ class NetworkApiService {
   Future<Recipe> fetchRecipe(String id) async {
     Map<String, String> parameters = {
       'includeNutrition': 'false',
-      'apiKey': SPOONACULAR_API_KEY,
+      'apiKey': spoonacularApiKey,
     };
 
     //we call in our recipe id in the Uri, and parse in our parameters
