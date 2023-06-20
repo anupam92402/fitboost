@@ -1,18 +1,20 @@
 import 'dart:developer';
-
-import 'package:fitboost/main.dart';
 import 'package:fitboost/views/bmi_screen.dart';
 import 'package:fitboost/views/edit_screen.dart';
+import 'package:fitboost/views/login_screen.dart';
 import 'package:fitboost/views/steps_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/const.dart';
 import '../views/calories_screen.dart';
 
+// to get the screen when selects from navigation drawer
+//floating action bar is visible in calories screen only and in rest screens its invisible
 class HomeViewModel extends ChangeNotifier {
   SharedPreferences prefs = SharedPrefs.instance;
-
-  Widget? _currentScreen = CaloriesScreen();
+  Widget? _currentScreen = const CaloriesScreen();
+  bool _visibility = true;
+  DrawerSection _currentDrawerItem = DrawerSection.home;
 
   Widget? getCurrentScreen() {
     return _currentScreen;
@@ -22,16 +24,12 @@ class HomeViewModel extends ChangeNotifier {
     _currentScreen = screen;
   }
 
-  bool _visibility = true;
-
   bool get visibility => _visibility;
 
   set visibility(bool val) {
     _visibility = val;
     notifyListeners();
   }
-
-  DrawerSection _currentDrawerItem = DrawerSection.home;
 
   DrawerSection getCurrentDrawerItem() => _currentDrawerItem;
 
@@ -41,14 +39,14 @@ class HomeViewModel extends ChangeNotifier {
     switch (_currentDrawerItem) {
       case DrawerSection.home:
         {
-          _currentScreen = CaloriesScreen();
+          _currentScreen = const CaloriesScreen();
           visibility = true;
           Navigator.pop(context);
           break;
         }
       case DrawerSection.edit:
         {
-          _currentScreen = EditScreen();
+          _currentScreen = const EditScreen();
           visibility = false;
           Navigator.pop(context);
         }
@@ -56,7 +54,7 @@ class HomeViewModel extends ChangeNotifier {
 
       case DrawerSection.bmi:
         {
-          _currentScreen = BmiScreen();
+          _currentScreen = const BmiScreen();
           visibility = false;
           Navigator.pop(context);
         }
@@ -64,7 +62,7 @@ class HomeViewModel extends ChangeNotifier {
 
       case DrawerSection.steps:
         {
-          _currentScreen = StepsScreen();
+          _currentScreen = const StepsScreen();
           visibility = false;
           Navigator.pop(context);
         }
@@ -73,10 +71,10 @@ class HomeViewModel extends ChangeNotifier {
       case DrawerSection.logout:
         {
           Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => MyApp()),
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
               (Route<dynamic> route) => false);
+          log('${HomeViewModel().runtimeType.toString()} user logout ${prefs.getString(currentUser)}');
           prefs.setString(currentUser, '');
-          log('user logout ${prefs.getString(currentUser)}');
         }
         break;
     }

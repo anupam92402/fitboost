@@ -33,12 +33,12 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
-  void checkUserAlreadyLoggedIn() async {
+  void checkUserAlreadyLoggedIn() {
     userAlreadyLoggedIn = false;
     if (prefs.getString(currentUser) != null &&
         prefs.getString(currentUser) != '') {
       userAlreadyLoggedIn = true;
-      log('current user logged in is ${prefs.getString(currentUser)}');
+      log('${SplashScreen().runtimeType.toString()} current user logged in is ${prefs.getString(currentUser)}');
     }
   }
 

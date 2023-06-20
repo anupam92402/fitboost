@@ -95,6 +95,7 @@ class _CaloriesScreenState extends State<CaloriesScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: LinearProgressIndicator(
+            minHeight: 8,
             value: provider.getProgressBarValue(),
             color: (provider.caloriesTakenValue >
                     provider.totalCaloriesToBurnValue)

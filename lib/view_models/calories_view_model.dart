@@ -23,18 +23,12 @@ class CalorieViewModel extends ChangeNotifier {
   }
 
   Future<void> getAlreadyExistingValues() async {
-    String? email = prefs.getString(currentUser);
-    if (email != null) {
-      String? user = prefs.getString(email);
-      if (user != null) {
-        Map<String, dynamic> userMap = jsonDecode(user);
-        userName = userMap['name'];
-        await setDate();
-        await setCaloriesList(date);
-        await setProgressBarValue();
-        notifyListeners();
-      }
-    }
+    Map<String, dynamic> userMap = getUserMap();
+    userName = userMap['name'];
+    await setDate();
+    await setCaloriesList(date);
+    await setProgressBarValue();
+    notifyListeners();
   }
 
   final _myRepo = CaloriesRepo();
@@ -85,36 +79,30 @@ class CalorieViewModel extends ChangeNotifier {
 
   Future<void> setProgressBarValue() async {
     log('date is $date');
-    String? email = prefs.getString(currentUser);
-    if (email != null) {
-      String? user = prefs.getString(email);
-      if (user != null) {
-        Map<String, dynamic> userMap = jsonDecode(user);
-        log('user map is $userMap');
-        double totalCaloriesToBurn = calculateUserBMR(userMap["weight"],
-            userMap["height"], userMap["age"], userMap["gender"]);
-        double caloriesTaken = 0;
-        if (userMap['calorieMap'] != null) {
-          Map<String, dynamic> calorieMap = userMap['calorieMap'];
-          // log('calorie map is $calorieMap');
-          if (calorieMap[date] != null) {
-            caloriesTaken = double.parse(calorieMap[date].toString());
-          }
-        }
 
-        String totalCaloriesToBurnString =
-            totalCaloriesToBurn.toStringAsFixed(2);
-        totalCaloriesToBurn = double.parse(totalCaloriesToBurnString);
-
-        String caloriesTakenString = caloriesTaken.toStringAsFixed(2);
-        caloriesTaken = double.parse(caloriesTakenString);
-
-        _progressBarValue = caloriesTaken / totalCaloriesToBurn;
-        totalCaloriesToBurnValue = totalCaloriesToBurn;
-        caloriesTakenValue = caloriesTaken;
-        notifyListeners();
+    Map<String, dynamic> userMap = getUserMap();
+    log('user map is $userMap');
+    double totalCaloriesToBurn = calculateUserBMR(userMap["weight"],
+        userMap["height"], userMap["age"], userMap["gender"]);
+    double caloriesTaken = 0;
+    if (userMap['calorieMap'] != null) {
+      Map<String, dynamic> calorieMap = userMap['calorieMap'];
+      // log('calorie map is $calorieMap');
+      if (calorieMap[date] != null) {
+        caloriesTaken = double.parse(calorieMap[date].toString());
       }
     }
+
+    String totalCaloriesToBurnString = totalCaloriesToBurn.toStringAsFixed(2);
+    totalCaloriesToBurn = double.parse(totalCaloriesToBurnString);
+
+    String caloriesTakenString = caloriesTaken.toStringAsFixed(2);
+    caloriesTaken = double.parse(caloriesTakenString);
+
+    _progressBarValue = caloriesTaken / totalCaloriesToBurn;
+    totalCaloriesToBurnValue = totalCaloriesToBurn;
+    caloriesTakenValue = caloriesTaken;
+    notifyListeners();
   }
 
   List<CaloriesData> _caloriesList = [];
@@ -124,36 +112,31 @@ class CalorieViewModel extends ChangeNotifier {
   }
 
   Future<void> setCaloriesList(String date) async {
-    String? email = prefs.getString(currentUser);
-    if (email != null) {
-      String? user = prefs.getString(email);
-      if (user != null) {
-        Map<String, dynamic> userMap = jsonDecode(user);
-        if (userMap['map'] == null) {
-          Map<String, List<dynamic>> map = {};
-          List<dynamic> list = [];
-          map[date] = list;
-          userMap['map'] = map;
-        }
-        Map<String, dynamic> map = userMap['map'];
-        // log('$map');
-        if (map[date] != null) {
-          _caloriesList.clear();
-          List<dynamic> list = map[date];
-          for (int i = 0; i < list.length; i += 4) {
-            CaloriesData data = CaloriesData(
-                id: list[i],
-                foodName: list[i + 1],
-                foodCalories: list[i + 2],
-                mealType: list[i + 3]);
-            _caloriesList.add(data);
-          }
-        } else {
-          // log('map of date:- $date is empty');
-          _caloriesList.clear();
-        }
-      }
+    Map<String, dynamic> userMap = getUserMap();
+    if (userMap['map'] == null) {
+      Map<String, List<dynamic>> map = {};
+      List<dynamic> list = [];
+      map[date] = list;
+      userMap['map'] = map;
     }
+    Map<String, dynamic> map = userMap['map'];
+    // log('$map');
+    if (map[date] != null) {
+      _caloriesList.clear();
+      List<dynamic> list = map[date];
+      for (int i = 0; i < list.length; i += 4) {
+        CaloriesData data = CaloriesData(
+            id: list[i],
+            foodName: list[i + 1],
+            foodCalories: list[i + 2],
+            mealType: list[i + 3]);
+        _caloriesList.add(data);
+      }
+    } else {
+      // log('map of date:- $date is empty');
+      _caloriesList.clear();
+    }
+
     notifyListeners();
   }
 

@@ -1,19 +1,18 @@
-import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
-
 import 'package:fitboost/utils/const.dart';
 import 'package:fitboost/view_models/home_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class NavigationDrawerClass extends StatefulWidget {
+  const NavigationDrawerClass({super.key});
+
   @override
   State<NavigationDrawerClass> createState() => _NavigationDrawerClassState();
 }
 
 class _NavigationDrawerClassState extends State<NavigationDrawerClass> {
-  SharedPreferences prefs = SharedPrefs.instance;
   String userName = '', userEmail = '', imagePath = '';
 
   @override
@@ -21,8 +20,7 @@ class _NavigationDrawerClassState extends State<NavigationDrawerClass> {
     super.initState();
   }
 
-  void getFile() async {}
-
+  @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -30,37 +28,32 @@ class _NavigationDrawerClassState extends State<NavigationDrawerClass> {
         padding: EdgeInsets.zero,
         children: [
           myDrawerHeader(),
-          menuItem(context, DrawerSection.home, Icons.home),
-          menuItem(context, DrawerSection.edit, Icons.edit),
-          // menuItem(context, DrawerSection.graph, Icons.bar_chart),
-          menuItem(context, DrawerSection.bmi, Icons.fastfood_rounded),
-          menuItem(context, DrawerSection.steps, Icons.directions_walk),
-          menuItem(context, DrawerSection.logout, Icons.logout),
+          menuItem(
+              context, DrawerSection.home, Icons.home, Colors.grey.shade900),
+          menuItem(
+              context, DrawerSection.edit, Icons.edit, Colors.grey.shade900),
+          menuItem(context, DrawerSection.bmi, Icons.fastfood_rounded,
+              Colors.grey.shade900),
+          menuItem(context, DrawerSection.steps, Icons.directions_walk,
+              Colors.grey.shade900),
+          menuItem(context, DrawerSection.logout, Icons.logout, Colors.red),
         ],
       ),
     );
   }
 
   Widget myDrawerHeader() {
-    String? email = prefs.getString(currentUser);
-    if (email != null) {
-      String? user = prefs.getString(email);
-      if (user != null) {
-        Map<String, dynamic> userMap = jsonDecode(user);
-        // print('$userMap');
-        userEmail = email;
-        userName = userMap['name'];
-        imagePath = userMap['image'];
-        // if (userMap['image'] != null) {
-        //   _getLocalFile(userMap['image']).then((value) => {
-        //         setState(() {
-        //           imagePath = value.path;
-        //         }),
-        //       });
-        //   // imagePath = response.path;
-        // }
-      }
+    String? email = SharedPrefs.instance.getString(currentUser);
+
+    try {
+      Map<String, dynamic> userMap = getUserMap();
+      userEmail = email ?? '';
+      userName = userMap['name'];
+      imagePath = userMap['image'];
+    } catch (exception) {
+      log(exception.toString());
     }
+
     return DrawerHeader(
       decoration: const BoxDecoration(
         color: Colors.blue,
@@ -94,11 +87,18 @@ class _NavigationDrawerClassState extends State<NavigationDrawerClass> {
     );
   }
 
-  ListTile menuItem(BuildContext context, DrawerSection title, IconData icon) {
+  ListTile menuItem(
+      BuildContext context, DrawerSection title, IconData icon, Color color) {
     var provider = Provider.of<HomeViewModel>(context);
     return ListTile(
-      leading: Icon(icon),
-      title: Text(title.name),
+      leading: Icon(
+        icon,
+        color: color,
+      ),
+      title: Text(
+        title.name,
+        style: TextStyle(color: color),
+      ),
       onTap: () {
         provider.setCurrentDrawerItem(title, context);
       },

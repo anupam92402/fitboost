@@ -2,49 +2,20 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/const.dart';
 
+//purpose of this view model is to get the values stored by user and let the user update it
 class EditViewModel extends ChangeNotifier {
-  Future<void> getAlreadyExistingValue() async {
-    SharedPreferences prefs = SharedPrefs.instance;
-    String? email = prefs.getString(currentUser);
-    if (email != null) {
-      String? user = prefs.getString(email);
-      if (user != null) {
-        Map<String, dynamic> userMap = await jsonDecode(user);
-        log('userMap is $userMap');
-        name = userMap['name'];
-        weight = userMap['weight'].toString();
-        height = userMap['height'].toString();
-        age = userMap['age'].toString();
-        gender = userMap['gender'];
-        if (userMap['image'] != null) {
-          imagePath = userMap['image'];
-        }
-      }
-    }
-    notifyListeners();
-  }
+  String name = '',
+      weight = '',
+      height = '',
+      age = '',
+      _gender = '',
+      imagePath = '';
 
-  String _name = '', _weight = '', _height = '', _age = '', _gender = '';
-  String imagePath = '';
-
-  String get name => _name;
-
-  set name(String value) {
-    _name = value;
-    notifyListeners();
-  }
-
-  get weight => _weight;
-
-  set weight(value) {
-    _weight = value;
-    notifyListeners();
-  }
+  File? imageFile;
 
   get gender => _gender == genderList[0] ? genderList[0] : genderList[1];
 
@@ -53,21 +24,22 @@ class EditViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  get age => _age;
-
-  set age(value) {
-    _age = value;
+  // function to fetch user inputted details and displaying it
+  Future<void> getAlreadyExistingValue() async {
+    Map<String, dynamic> userMap = getUserMap();
+    log('${EditViewModel().runtimeType.toString()} userMap is $userMap');
+    name = userMap['name'];
+    weight = userMap['weight'].toString();
+    height = userMap['height'].toString();
+    age = userMap['age'].toString();
+    gender = userMap['gender'];
+    if (userMap['image'] != null) {
+      imagePath = userMap['image'];
+    }
     notifyListeners();
   }
 
-  get height => _height;
-
-  set height(value) {
-    _height = value;
-    notifyListeners();
-  }
-
-  File? imageFile;
+  // image picker to select images from gallery
   getImageFromGallery() async {
     XFile? pickedFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -81,33 +53,24 @@ class EditViewModel extends ChangeNotifier {
     }
   }
 
-  void updateUserDetails(BuildContext context) async {
+  // function to update user details and show a toast when details get updated
+  void updateUserDetails() {
     SharedPreferences prefs = SharedPrefs.instance;
     String? email = prefs.getString(currentUser);
-    if (email != null) {
-      String? user = prefs.getString(email);
-      if (user != null) {
-        Map<String, dynamic> userMap = await jsonDecode(user);
-        userMap['name'] = name;
-        userMap['weight'] = double.tryParse(weight);
-        userMap['height'] = double.tryParse(height);
-        userMap['age'] = double.tryParse(age);
-        userMap['gender'] = gender;
-        if (imagePath.isNotEmpty) {
-          userMap['image'] = imagePath;
-          notifyListeners();
-        }
-        prefs.setString(email, jsonEncode(userMap));
-        log('update user is: $userMap');
 
-        Fluttertoast.showToast(
-            msg: "User Details Updated Successfully",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 2,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      }
+    Map<String, dynamic> userMap = getUserMap();
+    userMap['name'] = name;
+    userMap['weight'] = double.tryParse(weight);
+    userMap['height'] = double.tryParse(height);
+    userMap['age'] = double.tryParse(age);
+    userMap['gender'] = gender;
+    if (imagePath.isNotEmpty) {
+      userMap['image'] = imagePath;
+      notifyListeners();
     }
+    prefs.setString(email ?? 'null email', jsonEncode(userMap));
+    log('${EditViewModel().runtimeType.toString()} updated user details are: $userMap');
+
+    showToast("User Details Updated Successfully");
   }
 }

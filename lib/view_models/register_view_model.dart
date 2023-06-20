@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:fitboost/views/login_screen.dart';
-import 'package:fitboost/views/user_info.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../utils/const.dart';
 
+// registers a new user and navigate to the user info and onboarding screen if successful
 class RegisterViewModel extends ChangeNotifier {
   SharedPreferences prefs = SharedPrefs.instance;
 
@@ -34,47 +32,31 @@ class RegisterViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> registerUser(BuildContext context) async {
+  // function to register who created the account for the very first time
+  bool registerUser(BuildContext context) {
     if (_email == null || (_email != null && _email!.isEmpty)) {
-      log('email either null or empty');
+      showToast('Please enter a valid email');
     } else if (_password == null || (_password != null && _password!.isEmpty)) {
-      log('password either null or empty');
+      showToast('Please enter a valid password');
     } else if (_name == null || (_name != null && _name!.isEmpty)) {
-      log('name either null or empty');
+      showToast('Please enter a valid name');
     } else {
-      log('$_email');
       if (prefs.getString(_email!) != null) {
-        log("User account already exists");
+        showToast("User account already exists");
       } else if (emailRegex.hasMatch(_email ?? '') == false) {
-        log("email not matching regex");
+        showToast("email not matching regex");
       } else if (passwordRegex.hasMatch(_password ?? '') == false) {
-        log("password not matching regex");
+        showToast("password not matching regex");
       } else {
         User newUser =
             User.register(email: _email!, name: _name!, password: _password!);
         prefs.setString(_email!, jsonEncode(newUser));
         prefs.setString(currentUser, _email!);
-        log(jsonEncode(newUser));
-        await Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => UserInfoScreen()),
-        );
-        log('user registered successfully');
-        Fluttertoast.showToast(
-            msg: "User Registered Successfully",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 2,
-            textColor: Colors.white,
-            fontSize: 16.0);
+        log('${RegisterViewModel().runtimeType.toString()} ${jsonEncode(newUser)}');
+        showToast('user registered successfully');
+        return true;
       }
     }
-  }
-
-  Future<void Function()?> navigateToLoginScreen(BuildContext context) async {
-    await Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-    );
+    return false;
   }
 }

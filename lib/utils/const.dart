@@ -1,10 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async' show Future;
-
-///spoonacular api key
-///52f021d041744df2bebffa2144382813
 
 enum DrawerSection { home, edit, bmi, steps, logout }
 
@@ -55,10 +54,10 @@ Future<void> showToast(String message) async {
   Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
+      gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,
       backgroundColor: Colors.red,
-      textColor: Colors.black,
+      textColor: Colors.white,
       fontSize: 16.0);
 }
 
@@ -118,4 +117,16 @@ double getMetValue(
   double time = distance / speed;
   calories = (time * met * 3.5 * weight) / (200 * 60);
   return calories;
+}
+
+Map<String, dynamic> getUserMap() {
+  String? email = SharedPrefs.instance.getString(currentUser);
+  if (email != null) {
+    String? user = SharedPrefs.instance.getString(email);
+    if (user != null) {
+      Map<String, dynamic> userMap = jsonDecode(user);
+      return userMap;
+    }
+  }
+  throw ErrorDescription("map is null");
 }

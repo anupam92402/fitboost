@@ -1,8 +1,8 @@
 import 'package:fitboost/view_models/user_info_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../utils/const.dart';
+import 'onboarding_screen.dart';
 
 class UserInfoScreen extends StatefulWidget {
   const UserInfoScreen({Key? key}) : super(key: key);
@@ -37,9 +37,6 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
             const SizedBox(
               height: 52,
             ),
-            // GestureDetector(
-            //     onTap: () => showIntegerDialog(),
-            //     child: const Text("Enter your weight")),
             TextField(
               decoration: const InputDecoration(
                   labelText: 'Enter Your Current Weight', hintText: '50 kg'),
@@ -70,13 +67,6 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
             const SizedBox(
               height: 12,
             ),
-            // TextField(
-            //   decoration: const InputDecoration(
-            //       labelText: 'Enter Your Gender', hintText: 'Male'),
-            //   onChanged: (newGender) {
-            //     provider.gender = newGender;
-            //   },
-            // ),
             DropdownButton<String>(
               isExpanded: true,
               value: provider.gender,
@@ -96,7 +86,13 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
             ),
             TextButton(
               onPressed: () {
-                provider.submitUserInfo(context);
+                if (provider.submitUserInfo(context)) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const OnBoardingScreen()),
+                  );
+                }
               },
               style: TextButton.styleFrom(
                 backgroundColor: Colors.red,

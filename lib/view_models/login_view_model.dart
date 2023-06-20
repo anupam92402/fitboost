@@ -1,12 +1,9 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:fitboost/utils/const.dart';
-import 'package:fitboost/views/home_screen.dart';
-import 'package:fitboost/views/register_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// authenticates user and login, move to home page if login is successful
 class LoginViewModel extends ChangeNotifier {
   SharedPreferences prefs = SharedPrefs.instance;
 
@@ -26,43 +23,27 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loginUser(BuildContext context) async {
+  // function to login user and if successful take user to home screen
+  bool loginUser(BuildContext context) {
     if (_email == null || (_email != null && _email!.isEmpty)) {
-      log('email either null or empty');
+      showToast('Please enter a valid email id');
     } else if (_password == null || (_password != null && _password!.isEmpty)) {
-      log('password either null or empty');
-    } else if (_email != null && _password != null) {
+      showToast('please enter a valid password');
+    } else {
       if (prefs.getString(_email!) == null) {
-        log("user does not exists please register first");
+        showToast("User does not exists please register first");
       } else {
-        Map<String, dynamic> userMap = jsonDecode(prefs.getString(_email!)!);
+        Map<String, dynamic> userMap =
+            jsonDecode(SharedPrefs.instance.getString(email ?? '') ?? '');
         if (userMap['password'] != _password) {
-          log("password is not matching");
+          showToast("password is not matching");
         } else {
           prefs.setString(currentUser, _email!);
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => HomeScreen()),
-            (route) => false,
-          );
-          log('user login successfully');
-          Fluttertoast.showToast(
-              msg: "User Login Successfully",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 2,
-              textColor: Colors.white,
-              fontSize: 16.0);
+          showToast("User Login Successfully");
+          return true;
         }
       }
     }
-  }
-
-  Future<void Function()?> navigateToRegisterScreen(
-      BuildContext context) async {
-    await Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => RegisterScreen()),
-    );
+    return false;
   }
 }

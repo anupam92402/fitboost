@@ -1,17 +1,20 @@
-import 'dart:convert';
 import 'dart:developer';
-
 import 'package:fitboost/models/food/recipe_model.dart';
-
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/food/meal.dart';
 import '../repository/CaloriesRepo.dart';
 import '../utils/const.dart';
 
+//purpose of this view model are:-
+//1- fetch list of food by hitting api
+//2-displaying bmi value and status
+//3-get url of food for web view
 class BmiViewModel extends ChangeNotifier {
-  double _targetCalories = 300;
+  double _targetCalories = 50, bmi = 0, calories = 4000;
+  String weight = '', height = '', bmiStatus = 'Normal';
+  Color bmiStatusColor = Colors.green;
+  final _myRepo = CaloriesRepo();
+  List<Meal> list = [];
 
   double get targetCalories => _targetCalories;
 
@@ -20,67 +23,44 @@ class BmiViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _diet = 'None';
-
-  String get diet => _diet;
-
-  set diet(String newDiet) {
-    _diet = newDiet;
-    notifyListeners();
-  }
-
-  final _myRepo = CaloriesRepo();
-
-  List<Meal> list = [];
-
+  // function to fetch a list of food from the spoonacular api based on the
+  // number of calories[targetCalories] selected by the user from slider in bmi screen
   Future<void> fetchUserMeal() async {
     List<Meal> mealList = await _myRepo.generateMealPlan(
       targetCalories: _targetCalories.toInt(),
     );
     list = mealList;
-    log('fetched');
-    log(mealList[0].title);
-    targetCalories = 300;
+    log('${BmiViewModel().runtimeType.toString()}:- Data is fetched successfully from fetchUserMeal');
+    targetCalories = 50;
     notifyListeners();
   }
 
+  // to get the url of the food tapped by the user and show the user web view using the url
   Future<String> fetchRecipe(String id) async {
     Recipe recipe = await _myRepo.fetchRecipe(id);
     return recipe.spoonacularSourceUrl;
   }
 
-  String weight = '', height = '';
-  double bmi = 0, calories = 0;
-  String bmiStatus = 'Normal';
-  Color bmiStatusColor = Colors.green;
+  // show user input values like weight, height on bmi screen
+  // and change status of bmi value and status etc
+  void getAlreadyExistingValue() {
+    Map<String, dynamic> userMap = getUserMap();
+    weight = userMap['weight'].toString();
+    height = userMap['height'].toString();
+    calories = calculateUserBMR(userMap["weight"], userMap["height"],
+        userMap["age"], userMap["gender"]);
+    targetCalories = 50;
+    bmi = getBmi(height: double.parse(height), weight: double.parse(weight));
 
-  Future<void> getAlreadyExistingValue() async {
-    SharedPreferences prefs = SharedPrefs.instance;
-    String? email = prefs.getString(currentUser);
-    if (email != null) {
-      String? user = prefs.getString(email);
-      if (user != null) {
-        Map<String, dynamic> userMap = await jsonDecode(user);
-        weight = userMap['weight'].toString();
-        height = userMap['height'].toString();
-        targetCalories = 300;
-        bmi =
-            getBmi(height: double.parse(height), weight: double.parse(weight));
-
-        if (bmi < 18.5) {
-          bmiStatus = 'Underweight';
-          bmiStatusColor = Colors.yellow;
-        } else if (bmi < 25) {
-          bmiStatus = 'Normal';
-          bmiStatusColor = Colors.green;
-        } else {
-          bmiStatus = 'Overweight';
-          bmiStatusColor = Colors.red;
-        }
-
-        calories = calculateUserBMR(userMap["weight"], userMap["height"],
-            userMap["age"], userMap["gender"]);
-      }
+    if (bmi < 18.5) {
+      bmiStatus = 'Underweight';
+      bmiStatusColor = Colors.blue;
+    } else if (bmi < 25) {
+      bmiStatus = 'Normal';
+      bmiStatusColor = Colors.green;
+    } else {
+      bmiStatus = 'Overweight';
+      bmiStatusColor = Colors.red;
     }
     notifyListeners();
   }

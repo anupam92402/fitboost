@@ -15,11 +15,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   SharedPreferences prefs = SharedPrefs.instance;
-  @override
+
   @override
   Widget build(BuildContext context) {
-    var provider = Provider.of<HomeViewModel>(context);
-
+    final provider = Provider.of<HomeViewModel>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Fit Boost"),
@@ -31,36 +30,15 @@ class _HomeScreenState extends State<HomeScreen> {
             showModalBottomSheet<void>(
               context: context,
               builder: (BuildContext context) {
-                return showBottomSheetToUser();
+                return const showBottomSheetToUser();
               },
             );
           },
           child: const Icon(Icons.add),
         ),
       ),
-      drawer: NavigationDrawerClass(),
+      drawer: const NavigationDrawerClass(),
       body: provider.getCurrentScreen(),
     );
   }
-
-  // Widget currentPage(BuildContext context) {
-  //   var currentDrawerItem =
-  //       Provider.of<HomeViewModel>(context).getCurrentDrawerItem();
-  //   if (currentDrawerItem == DrawerSection.calories) {
-  //     return CaloriesScreen();
-  //   } else if (currentDrawerItem == DrawerSection.gym) {
-  //     return GymScreen();
-  //   } else if (currentDrawerItem == DrawerSection.settings) {
-  //     return SettingScreen();
-  //   } else if (currentDrawerItem == DrawerSection.logout) {
-  //     prefs.setString(currentUser, '');
-  //     print('user logout ${prefs.getString(currentUser)}');
-  //     Navigator.of(context).pushAndRemoveUntil(
-  //         MaterialPageRoute(builder: (context) => MyApp()),
-  //         (Route<dynamic> route) => false);
-  //     // Navigator.pop(context);
-  //     // return LoginScreen();
-  //   }
-  //   return CaloriesScreen();
-  // }
 }

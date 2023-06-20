@@ -7,7 +7,6 @@ import 'package:fitboost/view_models/home_view_model.dart';
 import 'package:fitboost/view_models/login_view_model.dart';
 import 'package:fitboost/view_models/register_view_model.dart';
 import 'package:fitboost/view_models/user_info_view_model.dart';
-import 'package:fitboost/views/onboarding_screen.dart';
 import 'package:fitboost/views/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,22 +37,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // SharedPreferences prefs = SharedPrefs.instance;
-  // bool userAlreadyLoggedIn = false;
   @override
   void initState() {
     // checkUserAlreadyLoggedIn();
     super.initState();
   }
-
-  // void checkUserAlreadyLoggedIn() async {
-  //   userAlreadyLoggedIn = false;
-  //   if (prefs.getString(currentUser) != null &&
-  //       prefs.getString(currentUser) != '') {
-  //     userAlreadyLoggedIn = true;
-  //     log('current user logged in is ${prefs.getString(currentUser)}');
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +61,8 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        // home: UserInfoScreen(),
-        home: OnBoardingScreen(),
-        // home: SplashScreen(),
+        // home: OnBoardingScreen(),
+        home: const SplashScreen(),
       ),
     );
   }

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:fitboost/view_models/edit_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../utils/const.dart';
 
 class EditScreen extends StatefulWidget {
@@ -25,26 +24,26 @@ class _EditScreenState extends State<EditScreen> {
     initialize();
   }
 
-  Future<void> initialize() async {
+  void initialize() {
     EditViewModel provider = context.read<EditViewModel>();
-    await provider.getAlreadyExistingValue();
-
-    _nameController = TextEditingController(text: provider.name);
-    _weightController = TextEditingController(text: provider.weight);
-    _heightController = TextEditingController(text: provider.height);
-    _ageController = TextEditingController(text: provider.age);
-
-    _nameController?.addListener(() {
-      provider.name = _nameController?.text ?? "null passed";
-    });
-    _weightController?.addListener(() {
-      provider.weight = _weightController?.text ?? "null passed";
-    });
-    _heightController?.addListener(() {
-      provider.height = _heightController?.text ?? "null passed";
-    });
-    _ageController?.addListener(() {
-      provider.age = _ageController?.text ?? "null passed";
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      provider.getAlreadyExistingValue();
+      _nameController = TextEditingController(text: provider.name);
+      _weightController = TextEditingController(text: provider.weight);
+      _heightController = TextEditingController(text: provider.height);
+      _ageController = TextEditingController(text: provider.age);
+      _nameController?.addListener(() {
+        provider.name = _nameController?.text ?? " ";
+      });
+      _weightController?.addListener(() {
+        provider.weight = _weightController?.text ?? " ";
+      });
+      _heightController?.addListener(() {
+        provider.height = _heightController?.text ?? " ";
+      });
+      _ageController?.addListener(() {
+        provider.age = _ageController?.text ?? " ";
+      });
     });
   }
 
@@ -60,8 +59,6 @@ class _EditScreenState extends State<EditScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<EditViewModel>();
-    print('here');
-    print(provider.imagePath);
     return Container(
       margin: const EdgeInsets.all(18),
       padding: const EdgeInsets.all(8),
@@ -93,7 +90,7 @@ class _EditScreenState extends State<EditScreen> {
           TextField(
             controller: _weightController,
             decoration: InputDecoration(
-                labelText: 'Enter Your Weight', hintText: '${provider.weight}'),
+                labelText: 'Enter Your Weight', hintText: provider.weight),
           ),
           const SizedBox(
             height: 8,
@@ -101,7 +98,7 @@ class _EditScreenState extends State<EditScreen> {
           TextFormField(
             controller: _heightController,
             decoration: InputDecoration(
-                labelText: 'Enter Your Height', hintText: '${provider.height}'),
+                labelText: 'Enter Your Height', hintText: provider.height),
           ),
           const SizedBox(
             height: 8,
@@ -109,7 +106,7 @@ class _EditScreenState extends State<EditScreen> {
           TextFormField(
             controller: _ageController,
             decoration: InputDecoration(
-                labelText: 'Enter Your Age', hintText: '${provider.age}'),
+                labelText: 'Enter Your Age', hintText: provider.age),
           ),
           const SizedBox(
             height: 8,
@@ -133,7 +130,7 @@ class _EditScreenState extends State<EditScreen> {
           ),
           TextButton(
             onPressed: () {
-              provider.updateUserDetails(context);
+              provider.updateUserDetails();
             },
             style: TextButton.styleFrom(
               backgroundColor: Colors.red,

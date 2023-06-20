@@ -24,25 +24,25 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             description:
                 'Track how much calories you need to consume per day according to your height, weight and other parameters',
             btnText: 'Next',
-            image: 'assets/images/fitness.png',
+            image: 'assets/images/calories.png',
             pageController: controller,
             index: 0,
           ),
           Pages(
             title: 'Gets Food Suggestion',
             description:
-                'You will get a list of food based on the calories you choose and the ingredients, recipe to make',
+                'You will get a list of food based on the number of calories you choose and the ingredients, recipe to make',
             btnText: 'Next',
-            image: 'assets/images/fitness.png',
+            image: 'assets/images/health.png',
             pageController: controller,
             index: 1,
           ),
           Pages(
             title: 'Track Calories Burned',
             description:
-                'See how many calories you have burned by 3 different modes walking, brisk walk and running etc',
-            btnText: 'Get\'s Started',
-            image: 'assets/images/fitness.png',
+                'See how many calories you have burned by checking 3 different modes walking, brisk walk and running etc',
+            btnText: 'Let\'s Get Started',
+            image: 'assets/images/step.png',
             pageController: controller,
             index: 2,
           ),
@@ -64,6 +64,7 @@ class Pages extends StatelessWidget {
       required this.image,
       required this.btnText,
       required this.index});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -71,7 +72,21 @@ class Pages extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Image.asset(image),
+          Text(
+            '${index + 1}/3',
+            style: const TextStyle(fontSize: 18),
+          ),
+          const SizedBox(
+            height: 18,
+          ),
+          Image.asset(
+            image,
+            width: 170,
+            height: 170,
+          ),
+          const SizedBox(
+            height: 24,
+          ),
           Text(
             title,
             textAlign: TextAlign.center,
@@ -86,26 +101,31 @@ class Pages extends StatelessWidget {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w300),
           ),
           const SizedBox(
-            height: 56,
+            height: 48,
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: index < 2
+                ? MainAxisAlignment.spaceBetween
+                : MainAxisAlignment.center,
             children: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => HomeScreen(),
+              Visibility(
+                visible: index < 2 ? true : false,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => const HomeScreen(),
+                      ),
+                    );
+                  },
+                  style: TextButton.styleFrom(backgroundColor: Colors.white),
+                  child: const Text(
+                    'Skip',
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.blue,
                     ),
-                  );
-                },
-                style: TextButton.styleFrom(backgroundColor: Colors.white),
-                child: const Text(
-                  'Skip',
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: Colors.blue,
                   ),
                 ),
               ),
@@ -120,7 +140,7 @@ class Pages extends StatelessWidget {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (BuildContext context) => HomeScreen(),
+                          builder: (BuildContext context) => const HomeScreen(),
                         ),
                       );
                       break;

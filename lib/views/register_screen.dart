@@ -1,6 +1,8 @@
 import 'package:fitboost/view_models/register_view_model.dart';
+import 'package:fitboost/views/user_info.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -60,8 +62,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               height: 56,
             ),
             TextButton(
-              onPressed: () async {
-                await provider.registerUser(context);
+              onPressed: () {
+                if (provider.registerUser(context)) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const UserInfoScreen()),
+                  );
+                }
               },
               style: TextButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -73,8 +81,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               height: 16,
             ),
             GestureDetector(
-              onTap: () async {
-                await provider.navigateToLoginScreen(context);
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
               },
               child: const Text(
                 "Already have an account? Login",

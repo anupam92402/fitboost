@@ -1,18 +1,15 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
-import 'package:fitboost/views/home_screen.dart';
-import 'package:fitboost/views/onboarding_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/const.dart';
 
+//input user basic details like weight, age, height etc
 class UserInfoViewModel extends ChangeNotifier {
   SharedPreferences prefs = SharedPrefs.instance;
-
   String? _weight, _height, _age, _gender;
+  File? imageFile;
 
   String? get weight => _weight;
 
@@ -42,7 +39,7 @@ class UserInfoViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  File? imageFile;
+  //function to get image from gallery and store it in shared preferences
   getImageFromGallery() async {
     XFile? pickedFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -55,15 +52,16 @@ class UserInfoViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> submitUserInfo(BuildContext context) async {
-    if (_weight == null || _weight?.length == 0) {
-      log(' weight either null ');
-    } else if (_height == null || _height?.length == 0) {
-      log('height either null ');
-    } else if (_age == null || _age?.length == 0) {
-      log('age either null ');
+  // save user input values into the shared preferences
+  bool submitUserInfo(BuildContext context) {
+    if (_weight == null || _weight == '') {
+      showToast('Please enter some value for weight');
+    } else if (_height == null || _height == '') {
+      showToast('Please enter some value for height');
+    } else if (_age == null || _age == '') {
+      showToast('Please enter some value for age');
     } else if (_gender == null) {
-      log('name either null or empty');
+      showToast('Please select the gender');
     } else {
       String? email = prefs.getString(currentUser);
       Map<String, dynamic> userMap = jsonDecode(prefs.getString(email!)!);
@@ -75,20 +73,9 @@ class UserInfoViewModel extends ChangeNotifier {
         userMap['image'] = imageFile?.path;
       }
       prefs.setString(email, jsonEncode(userMap));
-      log('user is: $userMap');
-
-      await Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => OnBoardingScreen()),
-      );
-      Fluttertoast.showToast(
-          msg: "User Info Submitted Successfully",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 2,
-          textColor: Colors.white,
-          fontSize: 16.0);
-      log('user info submitted successfully');
+      showToast('User Info Submitted Successfully');
+      return true;
     }
+    return false;
   }
 }

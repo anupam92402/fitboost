@@ -18,9 +18,11 @@ class _BmiScreenState extends State<BmiScreen> {
     initialize();
   }
 
-  Future<void> initialize() async {
-    BmiViewModel provider = context.read<BmiViewModel>();
-    await provider.getAlreadyExistingValue();
+  void initialize() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      BmiViewModel provider = context.read<BmiViewModel>();
+      provider.getAlreadyExistingValue();
+    });
   }
 
   @override
@@ -277,7 +279,7 @@ class _BmiScreenState extends State<BmiScreen> {
                           trackHeight: 6,
                         ),
                         child: Slider(
-                          min: 300,
+                          min: 50,
                           max: provider.calories,
                           value: provider.targetCalories,
                           onChanged: (value) {
@@ -291,12 +293,16 @@ class _BmiScreenState extends State<BmiScreen> {
 
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const FoodScreen(),
-                            ),
-                          );
+                          if (provider.targetCalories >= 50) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const FoodScreen(),
+                              ),
+                            );
+                          } else {
+                            showToast('Please select value greater then 100');
+                          }
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: Colors.red,
