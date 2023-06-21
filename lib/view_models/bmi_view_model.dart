@@ -26,11 +26,17 @@ class BmiViewModel extends ChangeNotifier {
   // function to fetch a list of food from the spoonacular api based on the
   // number of calories[targetCalories] selected by the user from slider in bmi screen
   Future<void> fetchUserMeal() async {
-    List<Meal> mealList = await _myRepo.generateMealPlan(
-      targetCalories: _targetCalories.toInt(),
-    );
+    List<Meal> mealList = [];
+    try {
+      mealList = await _myRepo.generateMealPlan(
+        targetCalories: _targetCalories.toInt(),
+      );
+    } catch (e) {
+      log('${BmiViewModel().runtimeType.toString()} error at line 35 is $e');
+    }
     list = mealList;
     log('${BmiViewModel().runtimeType.toString()}:- Data is fetched successfully from fetchUserMeal');
+
     targetCalories = 50;
     await Future.delayed(const Duration(seconds: 1));
     isDataLoaded = true;
@@ -39,8 +45,13 @@ class BmiViewModel extends ChangeNotifier {
 
   // to get the url of the food tapped by the user and show the user web view using the url
   Future<String> fetchRecipe(String id) async {
-    Recipe recipe = await _myRepo.fetchRecipe(id);
-    return recipe.spoonacularSourceUrl;
+    try {
+      Recipe recipe = await _myRepo.fetchRecipe(id);
+      return recipe.spoonacularSourceUrl;
+    } catch (e) {
+      log('${BmiViewModel().runtimeType.toString()} error at line 52 is $e');
+      rethrow;
+    }
   }
 
   // show user input values like weight, height on bmi screen

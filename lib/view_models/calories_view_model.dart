@@ -38,7 +38,7 @@ class CalorieViewModel extends ChangeNotifier {
       log('please enter the food eaten');
       return;
     }
-    dynamic data = await _myRepo.getFoodCalories(foodEaten);
+    int data = await _myRepo.getFoodCalories(foodEaten);
     if (data == -1) {
       Fluttertoast.showToast(
           msg: "Please write correct food name",

@@ -4,16 +4,18 @@ import '../models/food/meal.dart';
 import '../models/food/recipe_model.dart';
 
 class CaloriesRepo {
-  final NetworkApiService _apiService = NetworkApiService();
+  final NetworkApiService _apiService = NetworkApiService.instance;
 
-  Future<dynamic> getFoodCalories(String url) async {
+  Future<int> getFoodCalories(String url) async {
+    int response = -1;
     try {
-      dynamic response = await _apiService.getResponse(url);
+      int response = await _apiService.getResponse(url);
       log("data in repo class is:- $response");
       return response;
     } catch (e) {
       log(e.toString());
     }
+    return response;
   }
 
   Future<List<Meal>> generateMealPlan({required int targetCalories}) async {
@@ -23,8 +25,8 @@ class CaloriesRepo {
       log("data in repo class is:- ${response[0]}");
       return response;
     } catch (e) {
-      log(e.toString());
-      throw e;
+      log('${CaloriesRepo().runtimeType.toString()} error at line 28 is $e');
+      rethrow;
     }
   }
 
@@ -34,8 +36,8 @@ class CaloriesRepo {
       log("data in repo class is:- ${response.spoonacularSourceUrl}");
       return response;
     } catch (e) {
-      log(e.toString());
-      throw e;
+      log('${CaloriesRepo().runtimeType.toString()} error at line 39 is $e');
+      rethrow;
     }
   }
 }

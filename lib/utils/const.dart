@@ -6,12 +6,10 @@ import 'dart:async' show Future;
 
 //used as a key to store the current login user in shared preference
 const String currentUser = 'currentUser';
-const usdaApiKey = 'KsMfQMvmsYSsb9muLybXe5psVjSqRy6wao8wT4hA';
+
 //network image for background of container in bmi screen
 const networkImageUrl =
     'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=353&q=80';
-const spoonacularApiKey = '385a1b488e7a40dc92ed7be63b41df69';
-// const SPOONACULAR_API_KEY = '52f021d041744df2bebffa2144382813'; to be used
 
 //types of meal available
 final List<String> mealTypeList = [

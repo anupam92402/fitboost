@@ -5,45 +5,53 @@ import 'package:fitboost/data/remote/AppException.dart';
 import 'package:http/http.dart' as http;
 import '../../models/food/meal.dart';
 import '../../models/food/recipe_model.dart';
-import '../../utils/const.dart';
+import '../../utils/api_keys.dart';
+import '../../utils/end_points.dart';
 
 class NetworkApiService {
+  static final NetworkApiService instance = NetworkApiService._initialize();
+
+  NetworkApiService._initialize();
+
+  factory NetworkApiService() {
+    return instance;
+  }
+
   final String _usdaBaseUrl =
       'https://api.nal.usda.gov/fdc/v1/foods/search?api_key=$usdaApiKey&query=';
 
   final String _spoonacularBaseUrl = 'api.spoonacular.com';
 
-  Future getResponse(String url) async {
-    dynamic responseJson;
+  Future<int> getResponse(String url) async {
     try {
       log('message is $url');
       final response = await http.get(Uri.parse(_usdaBaseUrl + url));
-      responseJson = returnResponse(response);
-      log(' data class $responseJson');
+      dynamic responseJson = returnResponse(response);
+      List<dynamic>? list = responseJson['foods'];
+      if (list != null && list.isNotEmpty) {
+        final firstFood = responseJson['foods'][0];
+        final calories = firstFood['foodNutrients']
+            .firstWhere((nutrient) => nutrient['nutrientId'] == 1008)['value'];
+        return calories.round();
+      }
+      return -1;
     } on SocketException {
       throw FetchDataException('No Internet Connection');
+    } catch (e) {
+      log('${NetworkApiService().runtimeType.toString()} error caught with usda api is $e');
+      rethrow;
     }
-    return responseJson;
   }
 
   dynamic returnResponse(http.Response response) {
     switch (response.statusCode) {
       case 200:
         dynamic responseJson = jsonDecode(response.body);
-        List<dynamic>? list = responseJson['foods'];
-
-        if (list != null && list.isNotEmpty) {
-          final firstFood = responseJson['foods'][0];
-          final calories = firstFood['foodNutrients'].firstWhere(
-              (nutrient) => nutrient['nutrientId'] == 1008)['value'];
-          return calories.round();
-        }
-        return -1;
+        return responseJson;
       case 400:
         throw BadRequestException(response.toString());
       case 401:
       case 403:
-        throw UnauthorisedException(response.body.toString());
       case 404:
         throw UnauthorisedException(response.body.toString());
       case 500:
@@ -66,7 +74,7 @@ class NetworkApiService {
     //check if diet is null
 
     Map<String, String> parameters = {
-      'number': '30',
+      'number': '100',
       'maxCalories': maxCalories.toString(),
       'apiKey': spoonacularApiKey,
     };
@@ -76,7 +84,7 @@ class NetworkApiService {
 
     Uri uri = Uri.https(
       _spoonacularBaseUrl,
-      'recipes/findByNutrients',
+      foodListEndPoint,
       parameters,
     );
 
@@ -97,7 +105,7 @@ class NetworkApiService {
       var response = await http.get(uri, headers: headers);
       log(response.body);
       //decode the body of the response into a map
-      List<dynamic> data = json.decode(response.body);
+      List<dynamic> data = returnResponse(response);
       //convert the map into a MealPlan Object using the factory constructor,
       //MealPlan.fromMap
       List<Meal> mealList = [];
@@ -106,10 +114,10 @@ class NetworkApiService {
         mealList.add(meal);
       }
       return mealList;
-    } catch (err) {
+    } catch (e) {
       //If our response has error, we throw an error message
-      log('error occurred');
-      throw err.toString();
+      log('${NetworkApiService().runtimeType.toString()} error caught with spoonacular api is $e');
+      rethrow;
     }
   }
 
@@ -126,7 +134,7 @@ class NetworkApiService {
     //we call in our recipe id in the Uri, and parse in our parameters
     Uri uri = Uri.https(
       _spoonacularBaseUrl,
-      '/recipes/$id/information',
+      '/$recipeEndPoint/$id/$informationEndPoint',
       parameters,
     );
 
@@ -138,11 +146,12 @@ class NetworkApiService {
     //finally, we put our response in a try catch block
     try {
       var response = await http.get(uri, headers: headers);
-      Map<String, dynamic> data = json.decode(response.body);
+      Map<String, dynamic> data = returnResponse(response);
       Recipe recipe = Recipe.fromMap(data);
       return recipe;
-    } catch (err) {
-      throw err.toString();
+    } catch (e) {
+      log('${NetworkApiService().runtimeType.toString()} error caught with spoonacular api at line 155 is $e');
+      rethrow;
     }
   }
 }
